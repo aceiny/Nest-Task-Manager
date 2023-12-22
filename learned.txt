@@ -1,7 +1,0 @@
-learned 
-nest js structer 
-methodes
-dtos 
-err handlers
-pipes
-typeorm {config , entities , repositories}
