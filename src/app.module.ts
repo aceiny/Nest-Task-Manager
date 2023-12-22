@@ -6,7 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
-     MongooseModule.forRoot('mongodb+srv://Aceiny:LJncaXBX4nm9nVeX@taskmanager.jcz9knr.mongodb.net/NestTaskManager?retryWrites=true&w=majority') 
+     MongooseModule.forRoot(process.env.MONGO_URI) 
      , TaskModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],

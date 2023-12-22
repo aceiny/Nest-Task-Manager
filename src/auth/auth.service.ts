@@ -4,12 +4,15 @@ import { User } from './auth.schema';
 import { Model } from 'mongoose';
 import { authDto } from './auth.dto';
 import * as bcrypt from 'bcrypt'
+import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class AuthService {
     constructor(
         @InjectModel(User.name)
-        private userModel : Model<User>
+        private userModel : Model<User>,
+        private jwtService : JwtService
     ) {}
+
     async getAllUsers() : Promise<User[]> {
         const users = await this.userModel.find()
         return users
@@ -35,7 +38,7 @@ export class AuthService {
             throw new InternalServerErrorException('User not created');
         }
     }
-    async Login(authDto : authDto) : Promise<{accessToken:string}> {
+    async Login(authDto : authDto) : Promise<{Token:string}> {
         const user = await this.userModel.findOne({ username : authDto.username })
         if(!user){
             throw new UnauthorizedException('Username not exist')
@@ -43,7 +46,7 @@ export class AuthService {
         if(!bcrypt.compareSync(authDto.password, user.password)){
             throw new UnauthorizedException('Password not match')
         }
-        return { accessToken : user.username }
+        return { Token : this.jwtService.sign({username : user.username , id : user._id , role : 'user'}) }
     }
 
 }

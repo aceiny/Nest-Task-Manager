@@ -26,4 +26,5 @@ $ npm run start:prod
   learned about nest js err handlers
   pipes and validators
   learned how to use mongoose in a nest js way
+  learned how to use jwt in a nest js way 
 ```

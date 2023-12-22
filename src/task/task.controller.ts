@@ -1,8 +1,9 @@
-import { Controller , Get , Post , Body, Param, Delete, Patch, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller , Get , Post , Body, Param, Delete, Patch, Query, UsePipes, ValidationPipe, UseGuards, Req } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { FilterTaskDto, createTaskDto } from './task.dto';
 import { TaskStatus } from './task.model';
 import { TaskStatusValidationPipe } from './task.pipe';
+import { AuthGuard } from '@nestjs/passport';
 @Controller('task')
 export class TaskController {
     constructor(private readonly taskservice:TaskService){}
