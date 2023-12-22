@@ -4,6 +4,7 @@ import { FilterTaskDto, createTaskDto } from './task.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Task as TaskS } from './task.schema';
 import { Model } from 'mongoose';
+import { User } from 'src/auth/auth.schema';
 
 
 @Injectable()
@@ -12,7 +13,7 @@ export class TaskService {
         @InjectModel(TaskS.name)
         private  taskModel : Model<TaskS>
     ){}
-    async getTasks(FilterTaskDto : FilterTaskDto) : Promise<TaskS[]> {
+    async getTasks(FilterTaskDto : FilterTaskDto , user) : Promise<TaskS[]> {
         const { status , search } = FilterTaskDto
         const Qobj : any = {}
         if(status){
@@ -21,18 +22,19 @@ export class TaskService {
         if(search){
             Qobj.title = { $regex: search , $options: 'i' }
         }
-        const tasks = await this.taskModel.find(Qobj)
+        const tasks = await this.taskModel.find({...Qobj , user : user.id})
         return tasks
         
     }
-    async createTask(createTaskDto : createTaskDto) : Promise<TaskS> {
+    async createTask(createTaskDto : createTaskDto , user : User) : Promise<TaskS> {
         const { title , description } = createTaskDto
-        const task = this.taskModel.create({ title , description , status : TaskStatus.OPEN })
+        console.log(user)
+        const task = this.taskModel.create({ title , description , status : TaskStatus.OPEN , user : user.id })
         return task
     }
-    async getTaskById(id:string) : Promise<TaskS> {
+    async getTaskById(id:string , user) : Promise<TaskS> {
         try{
-            const found =  await this.taskModel.findById(id)
+            const found =  await this.taskModel.findOne({_id : id , user : user.id})
             if(!found){
                 throw new NotFoundException(`Task with id ${id} not found`)
             }
@@ -42,9 +44,9 @@ export class TaskService {
             throw new NotFoundException(`Task with id ${id} not found`)
         }
     }
-    async updateTaskById(id:string , status:TaskStatus) : Promise<TaskS> {
+    async updateTaskById(id:string , status:TaskStatus , user) : Promise<TaskS> {
         try{
-            const task = await this.taskModel.findByIdAndUpdate(id , { status } , { new : true })
+            const task = await this.taskModel.findOneAndUpdate({_id : id , user : user.id } , { status } , { new : true })
             if(!task){
                 throw new NotFoundException(`Task with id ${id} not found`)
             }
@@ -54,9 +56,9 @@ export class TaskService {
             throw new NotFoundException(`Task with id ${id} not found`)
         }
     }
-    async deleteTaskById(id:string) : Promise<{message:string , statusCode:number}> {
+    async deleteTaskById(id:string , user) : Promise<{message:string , statusCode:number}> {
         try{
-            const task = await this.taskModel.findByIdAndDelete(id)
+            const task = await this.taskModel.findOneAndDelete({_id : id , user : user.id})
             if(!task){
                 throw new NotFoundException(`Task with id ${id} not found`)
             }

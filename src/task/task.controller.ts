@@ -8,25 +8,30 @@ import { AuthGuard } from '@nestjs/passport';
 export class TaskController {
     constructor(private readonly taskservice:TaskService){}
     @Get()
-    getAllTasks(@Query(ValidationPipe) FilterTaskDto : FilterTaskDto){
-        return this.taskservice.getTasks(FilterTaskDto)
+    @UseGuards(AuthGuard())
+    getAllTasks(@Query(ValidationPipe) FilterTaskDto : FilterTaskDto , @Req() req){
+        return this.taskservice.getTasks(FilterTaskDto , req.user)
     }
     @Get('/:id')
-    getTaskById(@Param('id') id:string){
-        return this.taskservice.getTaskById(id)
+    @UseGuards(AuthGuard())
+    getTaskById(@Param('id') id:string , @Req() req){
+        return this.taskservice.getTaskById(id , req.user)
     }
     @Post()
     @UsePipes(ValidationPipe)
-    createTask(@Body() createTaskDto : createTaskDto){
-        return this.taskservice.createTask(createTaskDto)
+    @UseGuards(AuthGuard())
+    createTask(@Body() createTaskDto : createTaskDto , @Req() req){
+        return this.taskservice.createTask(createTaskDto , req.user)
     }
     @Patch('/:id')
-    updateTaskById(@Param('id') id : string , @Body('status' , TaskStatusValidationPipe) status : TaskStatus) {
-        return this.taskservice.updateTaskById(id,status)
+    @UseGuards(AuthGuard())
+    updateTaskById(@Param('id') id : string , @Body('status' , TaskStatusValidationPipe) status : TaskStatus , @Req() req) {
+        return this.taskservice.updateTaskById(id,status , req.user)
     }
     @Delete('/:id')
-    deleteTaskById(@Param('id') id:string){
-        return this.taskservice.deleteTaskById(id)
+    @UseGuards(AuthGuard()) 
+    deleteTaskById(@Param('id') id:string , @Req() req){
+        return this.taskservice.deleteTaskById(id , req.user)
     }
 
 }
