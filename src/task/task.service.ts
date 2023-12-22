@@ -12,10 +12,7 @@ export class TaskService {
         @InjectModel(TaskS.name)
         private  taskModel : Model<TaskS>
     ){}
-    async getAllTasks() : Promise<TaskS[]> {
-        return await this.taskModel.find()
-    }
-    async getTasksWithFilters(FilterTaskDto) : Promise<TaskS[]> {
+    async getTasks(FilterTaskDto : FilterTaskDto) : Promise<TaskS[]> {
         const { status , search } = FilterTaskDto
         const Qobj : any = {}
         if(status){

@@ -8,12 +8,7 @@ export class TaskController {
     constructor(private readonly taskservice:TaskService){}
     @Get()
     getAllTasks(@Query(ValidationPipe) FilterTaskDto : FilterTaskDto){
-        if(Object.keys(FilterTaskDto).length){
-            return this.taskservice.getTasksWithFilters(FilterTaskDto)
-        }
-        else{
-            return this.taskservice.getAllTasks()
-        }
+        return this.taskservice.getTasks(FilterTaskDto)
     }
     @Get('/:id')
     getTaskById(@Param('id') id:string){
@@ -34,3 +29,4 @@ export class TaskController {
     }
 
 }
+
