@@ -6,6 +6,7 @@ import { User, UserSchema } from './auth.schema';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
+import { RolesGuard } from './role.guard';
 require('dotenv').config()
 @Module({
   imports: [
@@ -23,11 +24,13 @@ require('dotenv').config()
   controllers: [AuthController],
   providers: [
     AuthService,
-    JwtStrategy
+    JwtStrategy,
+   RolesGuard, 
   ],
   exports : [
     JwtStrategy,
-    PassportModule
+    PassportModule,
+    JwtModule
   ]
 
 })

@@ -1,29 +1,23 @@
-import { Body, Controller, Get, Logger, Post, Req, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Post,  UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { authDto } from './auth.dto';
-import { AuthGuard } from '@nestjs/passport';
-import { GetUser } from './get-user.decorator';
+import { LoginDto} from './Dtos/LoginDto';
+import { SignUpDto } from './Dtos/SignUpDto';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService : AuthService){}
-
-    @Get()
-    @UseGuards(AuthGuard())
-    CheckGuards(@Req() req){
-        Logger.log(req.user)
-        return 'guards'
-    }
-
+    constructor(
+        private readonly authService : AuthService
+        ){} 
+           
     @Post('/signup')
     @UsePipes(ValidationPipe)
-    signUp(@Body() authDto : authDto){
-        return this.authService.Signup(authDto)
+    signUp(@Body() SignUpDto : SignUpDto){
+        return this.authService.Signup(SignUpDto)
     }
 
     @Post('/login')
     @UsePipes(ValidationPipe)
-    login(@Body() authDto : authDto){
-        return this.authService.Login(authDto)
+    login(@Body() LoginDto : LoginDto){
+        return this.authService.Login(LoginDto)
     }
 }

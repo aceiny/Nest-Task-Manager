@@ -2,9 +2,10 @@ import { ConflictException, Injectable, InternalServerErrorException, Unauthoriz
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './auth.schema';
 import { Model } from 'mongoose';
-import { authDto } from './auth.dto';
 import * as bcrypt from 'bcrypt'
 import { JwtService } from '@nestjs/jwt';
+import { SignUpDto } from './Dtos/SignUpDto';
+import { LoginDto} from './Dtos/LoginDto';
 @Injectable()
 export class AuthService {
     constructor(
@@ -13,40 +14,40 @@ export class AuthService {
         private jwtService : JwtService
     ) {}
 
-    async getAllUsers() : Promise<User[]> {
-        const users = await this.userModel.find()
-        return users
-    }
-    async Signup(authDto : authDto) : Promise<User> {
-        const exist = await this.userModel.findOne({ username : authDto.username })
+    async Signup(SignUpDto : SignUpDto) : Promise<User> {
+        const exist = await this.userModel.findOne({ email : SignUpDto.Email})
         if(exist){
-            throw new ConflictException('Username already exist')
+            throw new ConflictException('Email already exist')
         }
-        const { username , password } = authDto
-        try{
-            const salt = bcrypt.genSaltSync(10);
-            const HashedPass = bcrypt.hashSync(password, salt);
-            const user = await this.userModel.create({
-                username,
-                password : HashedPass
+        const { Firstname , Lastname , Phone , Email } = SignUpDto
+        let { Password } = SignUpDto
+        const salt = bcrypt.genSaltSync(10);
+        Password = bcrypt.hashSync(Password, salt);
+        const user = await this.userModel.create({
+            Firstname ,
+            Lastname ,
+            Phone ,
+            Email , 
+            Password,
             })
-            if(!user){
-                throw new InternalServerErrorException('User not created');
-            }
-            return user
-        }catch(err){
+        if(!user){
             throw new InternalServerErrorException('User not created');
         }
+        return user
     }
-    async Login(authDto : authDto) : Promise<{Token:string}> {
-        const user = await this.userModel.findOne({ username : authDto.username })
+
+    async Login(LoginDto : LoginDto) : Promise<{}> {
+        const user = await this.userModel.findOne({Email : LoginDto.Email})
         if(!user){
-            throw new UnauthorizedException('Username not exist')
+            throw new UnauthorizedException('Email not exist')
         }
-        if(!bcrypt.compareSync(authDto.password, user.password)){
+        if(!bcrypt.compareSync(LoginDto.Password, user.Password)){
             throw new UnauthorizedException('Password not match')
         }
-        return { Token : this.jwtService.sign({username : user.username , id : user._id , role : 'user'}) }
+        return { 
+            Status : 200 , 
+            Token : this.jwtService.sign({id : user._id ,Email : user.Email, Role : user.Role}),
+        }
     }
 
 }
